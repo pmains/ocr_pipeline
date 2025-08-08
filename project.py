@@ -163,35 +163,35 @@ class Project:
             self.get_path("final_epub", lang),
         )
 
-        def translate(self, source_lang, target_lang):
-            """
-            Translate cleaned chunks (body, bibliography, index) from source_lang to target_lang.
-            """
-            if source_lang == target_lang:
-                raise ValueError("Source and target languages must be different")
+    def translate(self, source_lang, target_lang):
+        """
+        Translate cleaned chunks (body, bibliography, index) from source_lang to target_lang.
+        """
+        if source_lang == target_lang:
+            raise ValueError("Source and target languages must be different")
 
-            target_language_name = LANG_CODE_TO_NAME.get(target_lang, None)
-            if not target_language_name:
-                raise ValueError(f"Unsupported target language: {target_lang}")
+        target_language_name = LANG_CODE_TO_NAME.get(target_lang, None)
+        if not target_language_name:
+            raise ValueError(f"Unsupported target language: {target_lang}")
 
-            self.ensure_dirs(target_lang)
+        self.ensure_dirs(target_lang)
 
-            # Body translation (standard prompt)
+        # Body translation (standard prompt)
+        transform.translate_chunks(
+            input_dir=self.get_path("cleaned_chunks", source_lang) / "body",
+            output_dir=self.get_path("cleaned_chunks", target_lang) / "body",
+            target_language=target_language_name,
+            light=False,
+        )
+
+        # Bibliography and index translation (light prompt)
+        for section in ["bibliography", "index"]:
             transform.translate_chunks(
-                input_dir=self.get_path("cleaned_chunks", source_lang) / "body",
-                output_dir=self.get_path("cleaned_chunks", target_lang) / "body",
+                input_dir=self.get_path("cleaned_chunks", source_lang) / section,
+                output_dir=self.get_path("cleaned_chunks", target_lang) / section,
                 target_language=target_language_name,
-                light=False,
+                light=True,
             )
-
-            # Bibliography and index translation (light prompt)
-            for section in ["bibliography", "index"]:
-                transform.translate_chunks(
-                    input_dir=self.get_path("cleaned_chunks", source_lang) / section,
-                    output_dir=self.get_path("cleaned_chunks", target_lang) / section,
-                    target_language=target_language_name,
-                    light=True,
-                )
 
     def rewrite_for_audio(self, lang=None):
         """

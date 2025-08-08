@@ -172,3 +172,15 @@ def batch_ocr_pdfs(pdf_input_folder, txt_output_folder, lang='lat+cat'):
             f.write("\n\n--- PAGE BREAK ---\n\n".join(texts))
 
         print(f"✅ Saved to {output_txt}")
+
+def ocr_pdf(pdf_path, txt_output_folder, lang="lat+cat"):
+    images = convert_with_progress(pdf_path, poppler_path=str(get_poppler_path()))
+    texts = ocr_images_with_progress(images, lang=lang)
+
+    base_name = os.path.splitext(os.path.basename(pdf_path))[0]
+    output_txt = os.path.join(txt_output_folder, f"{base_name}_ocr.txt")
+
+    with open(output_txt, "w", encoding="utf-8") as f:
+        f.write("\n\n--- PAGE BREAK ---\n\n".join(texts))
+
+    print(f"✅ Saved to {output_txt}")
